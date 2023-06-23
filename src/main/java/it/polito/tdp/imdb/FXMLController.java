@@ -5,8 +5,11 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Director;
+import it.polito.tdp.imdb.model.DirectorPesoList;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +38,10 @@ public class FXMLController {
     private Button btnCercaAffini; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAnno"
-    private ComboBox<?> boxAnno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxRegista"
-    private ComboBox<?> boxRegista; // Value injected by FXMLLoader
+    private ComboBox<Director> boxRegista; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtAttoriCondivisi"
     private TextField txtAttoriCondivisi; // Value injected by FXMLLoader
@@ -48,16 +51,42 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	Integer anno= this.boxAnno.getValue(); 
+    	
+    	// fai controlli 
+    	model.creaGrafo(anno);
+		txtResult.appendText("\nVertici e archi: " +model.getNumVertex()+" - "+model.getNumEdges());
+		
+		Collections.sort(model.getVertex());
+		boxRegista.getItems().addAll(model.getVertex()); 
+		
+		
     }
 
     @FXML
     void doRegistiAdiacenti(ActionEvent event) {
 
+    	Director dir= this.boxRegista.getValue(); 
+		txtResult.appendText("\nVertici adiacenti " +model.getAdiacenti(dir));
+
     }
 
     @FXML
     void doRicorsione(ActionEvent event) {
+    	
+    	Director dir= this.boxRegista.getValue(); 
+    	Double c= Double.parseDouble(this.txtAttoriCondivisi.getText()); 
+
+    	System.out.println("\nMax num attori condivisi : "+ c);
+
+    	DirectorPesoList trt= model.getPercorso(c, dir);
+    	
+		//txtResult.appendText("\nPeso cammino massimo: " +trt.getPesoTot());
+
+		for(Director t: trt.getBestPercorso()) {
+		   txtResult.appendText("\n"+t);
+		}
+		txtResult.appendText("\nPeso cammino massimo: " +trt.getPesoTot());
 
     }
 
@@ -76,7 +105,16 @@ public class FXMLController {
    public void setModel(Model model) {
     	
     	this.model = model;
+    	this.setCmbx(); 
     	
     }
+
+private void setCmbx() {
+	
+	for(int i= 2004; i<2007; i++){
+	boxAnno.getItems().add(i);
+	}
+}
+
     
 }
